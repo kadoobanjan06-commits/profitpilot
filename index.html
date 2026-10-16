@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#137a4b">
+  <meta name="description" content="A simple product profit and break-even calculator for online sellers.">
+  <title>ProfitPilot — Product Profit Calculator</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <style>
+    :root { color-scheme: light; --green:#137a4b; --green2:#e8f7ee; --ink:#17251d; --muted:#637169; --line:#dce6df; --bg:#f5f8f6; --red:#b42318; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+    header { background:#fff; border-bottom:1px solid var(--line); padding:16px; }
+    .wrap { max-width:900px; margin:0 auto; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.25rem; }
+    .brand img { width:38px; height:38px; }
+    header p { margin:3px 0 0 48px; color:var(--muted); font-size:.9rem; }
+    main { padding:20px 14px 40px; }
+    .intro h1 { margin:0 0 6px; font-size:clamp(1.6rem,5vw,2.2rem); letter-spacing:-.04em; }
+    .intro p { margin:0 0 20px; color:var(--muted); }
+    .layout { display:grid; grid-template-columns:1fr; gap:16px; }
+    .card { background:#fff; border:1px solid var(--line); border-radius:18px; padding:18px; box-shadow:0 3px 12px #173a2510; }
+    h2 { font-size:1.05rem; margin:0 0 14px; }
+    .fields { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    label { display:block; font-size:.86rem; font-weight:650; margin-bottom:5px; }
+    input, select { width:100%; min-width:0; border:1px solid #cbd8cf; border-radius:10px; padding:11px 10px; font:inherit; background:#fff; color:var(--ink); }
+    input:focus, select:focus, button:focus { outline:3px solid #a8e0bf; outline-offset:1px; }
+    .full { grid-column:1/-1; }
+    .hint { font-size:.78rem; color:var(--muted); margin-top:5px; }
+    .results { background:#123c2a; color:#fff; border-radius:18px; padding:20px; }
+    .results h2 { margin-bottom:4px; }
+    .results .sub { color:#d2e9da; font-size:.88rem; margin:0 0 16px; }
+    .hero-result { background:#ffffff12; border:1px solid #ffffff20; border-radius:14px; padding:15px; margin-bottom:12px; }
+    .hero-result .label { color:#d2e9da; font-size:.9rem; }
+    .big { font-size:2rem; font-weight:800; letter-spacing:-.04em; margin-top:3px; overflow-wrap:anywhere; }
+    .stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .stat { background:#ffffff10; border-radius:12px; padding:12px; }
+    .stat .k { color:#d2e9da; font-size:.78rem; }
+    .stat .v { font-size:1.15rem; font-weight:750; margin-top:4px; overflow-wrap:anywhere; }
+    .costs { margin-top:15px; border-top:1px solid #ffffff30; padding-top:10px; }
+    .costrow { display:flex; justify-content:space-between; gap:14px; padding:6px 0; font-size:.9rem; }
+    .costrow span:last-child { text-align:right; font-variant-numeric:tabular-nums; }
+    .loss { color:#ffb4ae; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:15px; }
+    button { border:0; border-radius:11px; padding:11px 14px; font:inherit; font-weight:700; cursor:pointer; }
+    .primary { background:var(--green); color:#fff; }
+    .secondary { background:var(--green2); color:#155c39; }
+    .footnote { color:var(--muted); font-size:.8rem; margin-top:16px; }
+    .notice { border-left:4px solid #d69e2e; background:#fff8e7; padding:11px 12px; border-radius:8px; font-size:.85rem; margin-top:12px; color:#624b16; }
+    footer { text-align:center; color:var(--muted); font-size:.8rem; padding:0 16px 28px; }
+    @media(min-width:760px) { main { padding-top:30px; } .layout { grid-template-columns:1.05fr .95fr; align-items:start; } .results { position:sticky; top:16px; } .card { padding:22px; } }
+    @media(max-width:420px) { .fields { grid-template-columns:1fr; } .full { grid-column:auto; } .stats { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand"><img src="icons/icon.svg" alt=""><span>ProfitPilot</span></div>
+    <p>Know your costs. Protect your margins.</p>
+  </div>
+</header>
+<main class="wrap">
+  <section class="intro">
+    <h1>Will this product make money?</h1>
+    <p>Enter your selling price and costs to estimate profit in seconds.</p>
+  </section>
+  <div class="layout">
+    <section class="card" aria-labelledby="inputs-heading">
+      <h2 id="inputs-heading">Product costs</h2>
+      <div class="fields">
+        <div class="full">
+          <label for="product">Product name (optional)</label>
+          <input id="product" placeholder="e.g. Stainless steel bottle" maxlength="80">
+        </div>
+        <div>
+          <label for="currency">Currency</label>
+          <select id="currency"><option value="GBP">GBP (£)</option><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="CAD">CAD (C$)</option><option value="AUD">AUD (A$)</option></select>
+        </div>
+        <div><label for="price">Selling price</label><input id="price" type="number" min="0" step="0.01" value="25"></div>
+        <div><label for="productCost">Product cost</label><input id="productCost" type="number" min="0" step="0.01" value="8"></div>
+        <div><label for="shipping">Shipping / fulfilment</label><input id="shipping" type="number" min="0" step="0.01" value="3"></div>
+        <div><label for="packaging">Packaging</label><input id="packaging" type="number" min="0" step="0.01" value="0.5"></div>
+        <div><label for="marketFee">Marketplace fee (%)</label><input id="marketFee" type="number" min="0" max="99.99" step="0.1" value="15"></div>
+        <div><label for="paymentFee">Payment fee (%)</label><input id="paymentFee" type="number" min="0" max="99.99" step="0.1" value="2"></div>
+        <div><label for="adCost">Advertising per sale</label><input id="adCost" type="number" min="0" step="0.01" value="1"></div>
+        <div><label for="otherCost">Other costs per sale</label><input id="otherCost" type="number" min="0" step="0.01" value="0"></div>
+        <div><label for="returns">Returns allowance per sale</label><input id="returns" type="number" min="0" step="0.01" value="0.5"></div>
+        <div><label for="units">Expected units per month</label><input id="units" type="number" min="0" step="1" value="50"></div>
+        <div class="full"><label for="fixed">Monthly fixed costs (optional)</label><input id="fixed" type="number" min="0" step="0.01" value="0"><div class="hint">For example, software or storage costs that are not tied to each sale.</div></div>
+      </div>
+      <div class="actions">
+        <button class="primary" id="reset" type="button">Reset calculator</button>
+        <button class="secondary" id="save" type="button">Save this estimate</button>
+      </div>
+      <p class="hint" id="saveStatus" aria-live="polite">Saved estimates stay in this browser on this device.</p>
+    </section>
+    <section class="results" aria-live="polite" aria-labelledby="results-heading">
+      <h2 id="results-heading">Your estimated results</h2>
+      <p class="sub" id="resultName">Product estimate</p>
+      <div class="hero-result">
+        <div class="label">Estimated profit per unit</div>
+        <div class="big" id="profit">£7.50</div>
+        <div id="status">Positive contribution profit</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="k">Profit margin</div><div class="v" id="margin">30.0%</div></div>
+        <div class="stat"><div class="k">Break-even price</div><div class="v" id="breakEven">£15.63</div></div>
+        <div class="stat"><div class="k">Product-cost ROI</div><div class="v" id="roi">93.8%</div></div>
+        <div class="stat"><div class="k">Estimated monthly profit</div><div class="v" id="monthly">£375.00</div></div>
+      </div>
+      <div class="costs">
+        <div class="costrow"><span>Marketplace fee</span><span id="marketFeeTotal">£0.00</span></div>
+        <div class="costrow"><span>Payment fee</span><span id="paymentFeeTotal">£0.00</span></div>
+        <div class="costrow"><span>Total variable cost</span><span id="totalCost">£0.00</span></div>
+        <div class="costrow"><span>Monthly revenue</span><span id="monthlyRevenue">£0.00</span></div>
+      </div>
+      <div class="notice" id="warning">Estimates depend on the accuracy of your inputs. Check fees and taxes for your marketplace.</div>
+    </section>
+  </div>
+  <p class="footnote">ProfitPilot provides estimates, not financial, tax, or accounting advice. Taxes, VAT, refunds and marketplace fees may require additional inputs. Verify current fees with your selling platform before making purchasing decisions.</p>
+</main>
+<footer>ProfitPilot · Simple tools for smarter selling</footer>
+<script>
+(() => {
+  const ids = ['product','currency','price','productCost','shipping','packaging','marketFee','paymentFee','adCost','otherCost','returns','units','fixed'];
+  const $ = id => document.getElementById(id);
+  const defaults = { product:'', currency:'GBP', price:'25', productCost:'8', shipping:'3', packaging:'0.5', marketFee:'15', paymentFee:'2', adCost:'1', otherCost:'0', returns:'0.5', units:'50', fixed:'0' };
+  const num = id => {
+    const v = Number($(id).value);
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  };
+  const money = n => new Intl.NumberFormat(undefined, {style:'currency', currency:$('currency').value, maximumFractionDigits:2}).format(Number.isFinite(n) ? n : 0);
+  const pct = n => Number.isFinite(n) ? n.toFixed(1) + '%' : '—';
+  function calculate() {
+    const price=num('price'), productCost=num('productCost'), shipping=num('shipping'), packaging=num('packaging');
+    const marketPct=Math.min(num('marketFee'),99.99)/100, paymentPct=Math.min(num('paymentFee'),99.99)/100;
+    const ad=num('adCost'), other=num('otherCost'), returns=num('returns'), units=num('units'), fixed=num('fixed');
+    const market=price*marketPct, payment=price*paymentPct;
+    const fixedUnit=productCost+shipping+packaging+ad+other+returns;
+    const total=fixedUnit+market+payment;
+    const profit=price-total, margin=price>0 ? profit/price*100 : NaN;
+    const denominator=1-marketPct-paymentPct;
+    const breakEven=denominator>0 ? fixedUnit/denominator : NaN;
+    const roi=productCost>0 ? profit/productCost*100 : NaN;
+    const monthly=profit*units-fixed, monthlyRevenue=price*units;
+    $('resultName').textContent=$('product').value.trim() || 'Product estimate';
+    $('profit').textContent=money(profit);
+    $('profit').classList.toggle('loss', profit<0);
+    $('status').textContent=profit<0 ? 'This product loses money at this price' : profit===0 ? 'Break-even before monthly fixed costs' : 'Positive contribution profit';
+    $('margin').textContent=pct(margin);
+    $('breakEven').textContent=Number.isFinite(breakEven) ? money(breakEven) : 'Not available';
+    $('roi').textContent=pct(roi);
+    $('monthly').textContent=money(monthly);
+    $('marketFeeTotal').textContent=money(market);
+    $('paymentFeeTotal').textContent=money(payment);
+    $('totalCost').textContent=money(total);
+    $('monthlyRevenue').textContent=money(monthlyRevenue);
+    const warnings=[];
+    if(price<=0) warnings.push('Enter a selling price greater than zero to calculate a margin.');
+    if(marketPct+paymentPct>=1) warnings.push('Combined percentage fees are 100% or more, so break-even price cannot be calculated reliably.');
+    if(profit<0) warnings.push('Your estimated variable costs exceed your selling price.');
+    if(margin>=0 && margin<15 && price>0) warnings.push('Your estimated margin is below 15%; check whether it covers all your costs.');
+    warnings.push('Tax/VAT and any fees you have not entered are excluded.');
+    $('warning').textContent=warnings.join(' ');
+    return {name:$('product').value.trim()||'Untitled product', currency:$('currency').value, inputs:Object.fromEntries(ids.map(id=>[id,$(id).value])), profit, margin, breakEven, roi, monthly, createdAt:new Date().toISOString()};
+  }
+  ids.forEach(id => $(id).addEventListener('input', calculate));
+  $('reset').addEventListener('click', () => { ids.forEach(id => $(id).value=defaults[id]); $('saveStatus').textContent='Calculator reset.'; calculate(); });
+  $('save').addEventListener('click', () => {
+    const estimate=calculate();
+    try {
+      const saved=JSON.parse(localStorage.getItem('profitpilot-estimates')||'[]');
+      saved.unshift(estimate);
+      localStorage.setItem('profitpilot-estimates',JSON.stringify(saved.slice(0,50)));
+      $('saveStatus').textContent='Estimate saved on this device ('+saved.slice(0,50).length+' saved).';
+    } catch(e) { $('saveStatus').textContent='Could not save in this browser. Check browser storage settings.'; }
+  });
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  }
+  calculate();
+})();
+</script>
+</body>
+</html>
